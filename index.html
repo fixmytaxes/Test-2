@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thekenkasse</title>
+<meta name="description" content="Kasse für Getränkeverkauf und Thekendienst: Kacheln antippen, Rückgeld berechnen, Deckel führen, Abrechnung erstellen.">
+<meta name="theme-color" content="#F1F4F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1311" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Theke">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- APP:START -->
+<div id="app" class="app" data-tiles="m" lang="de">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="currentColor"/><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2" stroke-dasharray="2.2 2"/><g stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M10.5 11v10M13.5 11v10M16.5 11v10M19.5 11v10M8.5 19.5l13-7"/></g></svg>
+      <span>Thekenkasse</span>
+    </div>
+    <nav class="nav" aria-label="Bereiche">
+      <a class="nav-item" href="#kasse" data-nav="kasse">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>
+        <span>Kasse</span>
+      </a>
+      <a class="nav-item" href="#deckel" data-nav="deckel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 8.5v7M12 8.5v7M15 8.5v7M7.5 14l9-4.5"/></svg>
+        <span>Deckel</span>
+        <b class="nav-badge" id="navTabBadge" hidden>0</b>
+      </a>
+      <a class="nav-item" href="#abrechnung" data-nav="abrechnung">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/></svg>
+        <span>Abrechnung</span>
+      </a>
+      <a class="nav-item" href="#sortiment" data-nav="sortiment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+        <span>Sortiment</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="main" id="main">
+    <section class="view view-kasse" data-name="kasse" id="view-kasse">
+      <div class="products">
+        <div class="chips" id="catChips" role="toolbar" aria-label="Kategorien"></div>
+        <div class="grid-scroll" id="gridScroll">
+          <div id="sampleHint"></div>
+          <div class="product-grid" id="productGrid"></div>
+        </div>
+      </div>
+      <aside class="order" id="orderPanel" aria-label="Aktuelle Bestellung"></aside>
+    </section>
+    <section class="view view-scroll" data-name="deckel" id="view-deckel" hidden></section>
+    <section class="view view-scroll" data-name="abrechnung" id="view-abrechnung" hidden></section>
+    <section class="view view-scroll" data-name="sortiment" id="view-sortiment" hidden></section>
+  </main>
+
+  <div id="modalRoot"></div>
+  <div class="toast-root" id="toastRoot" aria-live="polite"></div>
+</div>
+<!-- APP:END -->
+<script src="app.js" defer></script>
+</body>
+</html>
