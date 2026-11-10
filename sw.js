@@ -1,5 +1,5 @@
 /* Thekenkasse – Service Worker: hält die App offline verfügbar (z. B. bei schlechtem Empfang auf dem Festplatz). */
-const CACHE = 'thekenkasse-v1';
+const CACHE = 'thekenkasse-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,10 @@ const ASSETS = [
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './fonts/barlow-semi-condensed-500.woff2',
+  './fonts/barlow-semi-condensed-600.woff2',
+  './fonts/barlow-semi-condensed-700.woff2'
 ];
 
 self.addEventListener('install', (event) => {
@@ -29,12 +32,11 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  const isFont = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
-  if (url.origin !== self.location.origin && !isFont) return;
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
     caches.open(CACHE).then(async (cache) => {
-      const cached = await cache.match(req, { ignoreSearch: url.origin === self.location.origin });
+      const cached = await cache.match(req, { ignoreSearch: true });
       const network = fetch(req)
         .then((res) => {
           if (res && (res.ok || res.type === 'opaque')) cache.put(req, res.clone());

@@ -120,10 +120,12 @@
   }
 
   let storageOk = true;
+  let restoredFromStorage = false;
+  const IS_LOCAL_FILE = location.protocol === 'file:';
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return migrate(JSON.parse(raw));
+      if (raw) { restoredFromStorage = true; return migrate(JSON.parse(raw)); }
     } catch (e) { storageOk = false; }
     return defaultState();
   }
@@ -613,7 +615,7 @@
       .join('');
 
     $('#sampleHint').innerHTML = state.meta.sampleHint
-      ? `<div class="hint"><p>Das ist ein Beispiel-Sortiment. Passe Artikel und Preise unter <strong>Sortiment</strong> an.</p>
+      ? `<div class="hint"><p>Das ist ein Beispiel-Sortiment. Passe Artikel und Preise unter <strong>Sortiment</strong> an.${IS_LOCAL_FILE && !restoredFromStorage ? ' Tipp: Schließe die App einmal und öffne sie neu. Unter Sortiment → Daten siehst du dann, ob deine Daten erhalten bleiben.' : ''}</p>
          <button class="btn btn-sm btn-outline" data-action="goto" data-id="sortiment">Sortiment</button>
          <button class="icon-btn" data-action="dismiss-hint" aria-label="Hinweis ausblenden">${ICON.close}</button></div>`
       : '';
@@ -1154,7 +1156,7 @@
 
   function exportCsv(session) {
     const name = `Thekenkasse_Abrechnung_${DATE_FILE(session.startedAt)}.csv`;
-    saveFile(name, buildCsv(session), 'text/csv');
+    openExport('Abrechnung exportieren', name, buildCsv(session), 'text/csv');
   }
 
   // ================================================================
@@ -1212,19 +1214,18 @@
       ? `<span class="cloud-dot on"></span>Automatische Sicherung in deinem Claude-Konto aktiv${Cloud.lastSaved ? ` · zuletzt ${fTime(Cloud.lastSaved)}` : ''}${Cloud.note ? ` · ${esc(Cloud.note)}` : ''}`
       : c === 'connecting' ? '<span class="cloud-dot"></span>Cloud-Sicherung wird verbunden …'
       : c === 'error' ? `<span class="cloud-dot err"></span>${esc(Cloud.note || 'Cloud-Sicherung nicht erreichbar.')}`
-      : '<span class="cloud-dot"></span>Die Daten werden nur auf diesem Gerät gespeichert. Exportiere regelmäßig eine Sicherung.';
+      : !storageOk ? '<span class="cloud-dot err"></span>Speichern ist hier nicht möglich. Die Daten gehen beim Schließen verloren.'
+      : restoredFromStorage ? `<span class="cloud-dot on"></span>Daten werden auf diesem Gerät gespeichert und sind seit ${fDateTime(state.meta.created)} erhalten geblieben.`
+      : '<span class="cloud-dot"></span>Daten werden auf diesem Gerät gespeichert. Schließe die App einmal und öffne sie neu: Steht hier dann „erhalten geblieben“, funktioniert die Speicherung.';
     el.innerHTML = `<h2>Daten</h2>
       <p class="cloud-line">${cloudLine}</p>
-      ${storageOk ? '' : '<p class="form-error">Der Browser erlaubt hier keine dauerhafte Speicherung. Bitte Sicherung exportieren.</p>'}
       <div class="data-actions">
         <button class="btn btn-outline" data-action="export-backup">Sicherung exportieren</button>
         <button class="btn btn-outline" data-action="import-backup">Sicherung importieren</button>
         ${c === 'on' ? '<button class="btn btn-outline" data-action="cloud-restore">Cloud-Sicherungen</button>' : ''}
         <button class="btn btn-danger" data-action="reset-all">Alles zurücksetzen</button>
       </div>
-      <p class="field-hint">Die Sicherung (JSON) enthält Sortiment, Einstellungen, offene Deckel und alle Abrechnungen. So überträgst du alles auf ein anderes Gerät, z. B. vom Handy aufs iPad.</p>
-      <input type="file" id="importFile" accept="application/json,.json" hidden>`;
-    $('#importFile').addEventListener('change', onImportFile);
+      <p class="field-hint">Die Sicherung (JSON) enthält Sortiment, Einstellungen, offene Deckel und alle Abrechnungen. So überträgst du alles auf ein anderes Gerät, z. B. vom Handy aufs iPad. Exportiere nach jedem Einsatz die Abrechnung als CSV.</p>`;
   }
 
   function openProductEditor(id, presetCat) {
@@ -1385,28 +1386,85 @@
 
   function exportBackup() {
     const data = Object.assign({ app: 'thekenkasse', exported: Date.now() }, state);
-    saveFile(`Thekenkasse_Sicherung_${DATE_FILE(Date.now())}.json`, JSON.stringify(data, null, 1), 'application/json');
+    openExport('Sicherung exportieren', `Thekenkasse_Sicherung_${DATE_FILE(Date.now())}.json`, JSON.stringify(data), 'application/json');
   }
 
-  function onImportFile(e) {
-    const file = e.target.files && e.target.files[0];
-    e.target.value = '';
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      let data;
-      try { data = JSON.parse(String(reader.result)); } catch (err) { data = null; }
-      if (!data || !Array.isArray(data.products) || !data.session) { toast('Die Datei ist keine gültige Thekenkasse-Sicherung.', { error: true }); return; }
-      const ok = await confirmDialog({
-        title: 'Sicherung importieren?',
-        text: `Die Sicherung enthält ${plural(data.products.length, 'Artikel', 'Artikel')}, ${plural((data.tabs || []).filter((t) => t.status === 'open').length, 'offenen Deckel', 'offene Deckel')} und ${plural((data.history || []).length, 'frühere Abrechnung', 'frühere Abrechnungen')}. Die aktuellen Daten auf diesem Gerät werden ersetzt.`,
-        ok: 'Importieren', danger: true
-      });
-      if (!ok) return;
-      replaceState(data);
-      toast('Sicherung importiert');
-    };
-    reader.readAsText(file);
+  function openExport(title, filename, text, mime) {
+    const kb = Math.max(1, Math.round(new Blob([text]).size / 1024));
+    const m = openModal({
+      title: esc(title),
+      subtitle: `${esc(filename)} · ${kb} KB`,
+      body: '<p>Speichere die Datei oder teile sie, zum Beispiel per AirDrop, Mail oder in die Dateien-App. Falls das in deiner App nicht klappt, kopiere den Inhalt und füge ihn in eine Mail oder Notiz ein.</p>',
+      foot: '<button class="btn btn-outline" data-m="copy">In Zwischenablage kopieren</button><button class="btn btn-primary" data-m="save">Speichern / Teilen</button>'
+    });
+    m.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-m]');
+      if (!b) return;
+      if (b.dataset.m === 'save') { closeModal(); saveFile(filename, text, mime); return; }
+      if (await copyText(text.replace(/^\uFEFF/, ''))) { closeModal(); toast('In die Zwischenablage kopiert'); }
+      else toast('Kopieren ist hier nicht möglich.', { error: true });
+    });
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* weiter mit Ersatzweg */ }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  async function importFromText(raw) {
+    let data;
+    try { data = JSON.parse(String(raw).trim()); } catch (err) { data = null; }
+    if (!data || !Array.isArray(data.products) || !data.session) { toast('Das ist keine gültige Thekenkasse-Sicherung.', { error: true }); return false; }
+    const ok = await confirmDialog({
+      title: 'Sicherung importieren?',
+      text: `Die Sicherung enthält ${plural(data.products.length, 'Artikel', 'Artikel')}, ${plural((data.tabs || []).filter((t) => t.status === 'open').length, 'offenen Deckel', 'offene Deckel')} und ${plural((data.history || []).length, 'frühere Abrechnung', 'frühere Abrechnungen')}. Die aktuellen Daten auf diesem Gerät werden ersetzt.`,
+      ok: 'Importieren', danger: true
+    });
+    if (!ok) return false;
+    replaceState(data);
+    toast('Sicherung importiert');
+    return true;
+  }
+
+  function openImport() {
+    const m = openModal({
+      title: 'Sicherung importieren',
+      body: `<p>Wähle eine Sicherungsdatei (.json) aus oder füge den kopierten Inhalt einer Sicherung ein.</p>
+        <div><button class="btn btn-outline" data-m="file">Datei auswählen</button><input type="file" id="importFile" accept="application/json,.json,text/plain" hidden></div>
+        <label class="field"><span>Oder Inhalt einfügen</span><textarea class="input" id="importText" rows="5" spellcheck="false" autocomplete="off"></textarea></label>`,
+      foot: '<button class="btn btn-outline" data-action="modal-close">Abbrechen</button><button class="btn btn-primary" data-m="go">Importieren</button>'
+    });
+    const fileInput = m.querySelector('#importFile');
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files && fileInput.files[0];
+      fileInput.value = '';
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => { if (await importFromText(reader.result)) closeModal(); };
+      reader.readAsText(file);
+    });
+    m.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-m]');
+      if (!b) return;
+      if (b.dataset.m === 'file') fileInput.click();
+      else if (b.dataset.m === 'go') {
+        const text = m.querySelector('#importText').value;
+        if (!text.trim()) { toast('Bitte zuerst eine Datei auswählen oder Inhalt einfügen.', { error: true }); return; }
+        if (await importFromText(text)) closeModal();
+      }
+    });
   }
 
   function replaceState(data) {
@@ -1667,7 +1725,7 @@
     setting: (el) => { state.settings[el.dataset.key] = el.dataset.id; save(); applySettings(); renderSortiment(); },
     'toggle-wakelock': () => { state.settings.wakeLock = !state.settings.wakeLock; save(); applyWakeLock(); renderSortiment(); },
     'export-backup': () => exportBackup(),
-    'import-backup': () => { const f = $('#importFile'); if (f) f.click(); },
+    'import-backup': () => openImport(),
     'cloud-restore': () => openCloudRestore(),
     'reset-all': () => resetAll()
   };

@@ -132,6 +132,11 @@
   color-scheme: dark;
 }
 
+/* ---------- Schrift (Barlow Semi Condensed, SIL OFL 1.1 – siehe fonts/OFL.txt) ---------- */
+@font-face { font-family: "Barlow Semi Condensed"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/barlow-semi-condensed-500.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Semi Condensed"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/barlow-semi-condensed-600.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Semi Condensed"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/barlow-semi-condensed-700.woff2") format("woff2"); }
+
 /* ---------- Grundgerüst ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { height: 100%; }

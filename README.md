@@ -36,13 +36,30 @@ Eine schlanke Kassen-App für Getränkeverkauf und Thekendienst – gemacht für
 - Kachelgröße (klein/mittel/groß), Farbschema (automatisch/hell/dunkel), „Bildschirm anlassen“.
 - Sicherung als JSON exportieren/importieren, um alles auf ein anderes Gerät zu übertragen.
 
-## Auf dem iPad oder iPhone nutzen
+## Aufs iPad bringen
 
-1. Die App über eine HTTPS-Adresse bereitstellen (siehe unten) und in **Safari** öffnen.
-2. **Teilen** → **Zum Home-Bildschirm**.
-3. Die App startet jetzt wie eine normale App im Vollbild und funktioniert auch ohne Internet.
+Im Ordner `dist/` liegen zwei fertige Dateien:
 
-> Wichtig: Die Daten liegen nur auf dem jeweiligen Gerät. Als Home-Bildschirm-App bleiben sie dauerhaft erhalten. Exportiere nach jedem Einsatz die CSV-Abrechnung und gelegentlich eine Sicherung.
+| Datei | Wofür |
+| --- | --- |
+| `dist/Thekenkasse.html` | Die komplette App in **einer** Datei. Läuft ohne Internet und ohne Server. |
+| `dist/Thekenkasse-WebApp.zip` | Die App als Ordner zum Hochladen auf einen Webspace. Daraus wird eine richtige Home-Bildschirm-App. |
+
+### Weg 1: Einzeldatei `Thekenkasse.html`
+
+1. Die Datei aufs iPad übertragen (AirDrop, Mail, iCloud Drive oder USB) und in der **Dateien**-App ablegen.
+2. Mit einer App öffnen, die lokale HTML-Dateien mit JavaScript ausführen kann (im App Store unter „HTML Viewer“ zu finden). Safari selbst öffnet lokale HTML-Dateien auf dem iPad nicht zuverlässig.
+3. **Einmal testen:** einen Artikel buchen, die App schließen, neu öffnen und unter *Sortiment → Daten* nachsehen. Steht dort „… erhalten geblieben“, speichert die App dauerhaft.
+
+Ob die Daten dauerhaft gespeichert werden, hängt von der App ab, mit der du die Datei öffnest. Exportiere deshalb nach jedem Einsatz die Abrechnung (CSV) und gelegentlich eine Sicherung.
+
+### Weg 2: Web-App mit eigenem App-Icon (empfohlen für den Dauerbetrieb)
+
+1. `Thekenkasse-WebApp.zip` entpacken und den Ordner `Thekenkasse` auf einen beliebigen Webspace mit HTTPS hochladen (siehe „Bereitstellen“).
+2. Die Adresse auf dem iPad in **Safari** öffnen → **Teilen** → **Zum Home-Bildschirm**.
+3. Die App startet jetzt im Vollbild mit eigenem Icon, funktioniert offline, und die Daten bleiben dauerhaft auf dem iPad gespeichert.
+
+> Die Daten liegen immer nur auf dem jeweiligen Gerät. Mit *Sortiment → Daten → Sicherung exportieren/importieren* überträgst du alles auf ein anderes Gerät.
 
 ## Bereitstellen
 
@@ -66,6 +83,8 @@ python3 -m http.server 8000
 | `app.js` | Gesamte Logik: Kasse, Zahlung, Deckel, Abrechnung, Sortiment, Speicherung |
 | `sw.js` | Service Worker für den Offline-Betrieb |
 | `manifest.webmanifest`, `icons/` | App-Name und Icons für den Home-Bildschirm |
+| `fonts/` | Schrift „Barlow Semi Condensed“ (SIL Open Font License 1.1, siehe `fonts/OFL.txt`) |
+| `tools/build.py` | Erzeugt `dist/Thekenkasse.html` und `dist/Thekenkasse-WebApp.zip` (`python3 tools/build.py`) |
 
 ## Wie gebucht wird
 
