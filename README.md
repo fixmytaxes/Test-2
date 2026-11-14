@@ -38,14 +38,28 @@ Eine schlanke Kassen-App für Getränkeverkauf und Thekendienst – gemacht für
 
 ## Aufs iPad bringen
 
-Im Ordner `dist/` liegen zwei fertige Dateien:
+Im Ordner `dist/` liegen drei fertige Dateien:
 
 | Datei | Wofür |
 | --- | --- |
+| `dist/Thekenkasse-iPad.swiftpm.zip` | **Empfohlen:** iPad-App für Apples kostenlose App *Swift Playgrounds*. Läuft lokal und offline, kein Mac nötig. |
 | `dist/Thekenkasse.html` | Die komplette App in **einer** Datei. Läuft ohne Internet und ohne Server. |
-| `dist/Thekenkasse-WebApp.zip` | Die App als Ordner zum Hochladen auf einen Webspace. Daraus wird eine richtige Home-Bildschirm-App. |
+| `dist/Thekenkasse-WebApp.zip` | Die App als Ordner zum Hochladen auf einen Webspace. Daraus wird eine Home-Bildschirm-App. |
 
-### Weg 1: Einzeldatei `Thekenkasse.html`
+### Empfohlen: iPad-App mit Swift Playgrounds
+
+1. **Swift Playgrounds** aus dem App Store laden (kostenlos, von Apple).
+2. `Thekenkasse-iPad.swiftpm.zip` aufs iPad bringen und in der **Dateien**-App sichern, z. B. unter „Auf meinem iPad“.
+3. In der Dateien-App auf die ZIP-Datei tippen. Sie wird entpackt, es erscheint **Thekenkasse** (`Thekenkasse.swiftpm`).
+4. Auf **Thekenkasse** tippen. Das Projekt öffnet sich in Swift Playgrounds. Falls nicht: In Swift Playgrounds über „Öffnen“ bzw. das Ordnersymbol zur Datei navigieren.
+5. Oben auf **▶︎ Ausführen** tippen. Über das Vollbild-Symbol blendest du den Code aus und nutzt die Kasse im Vollbild.
+6. **Einmal testen:** etwas buchen, Swift Playgrounds ganz schließen, neu öffnen und ausführen. Unter *Sortiment → Daten* muss „… erhalten geblieben“ stehen.
+
+Die App speichert alles im eigenen Speicher auf dem iPad, ohne Internet. Exportierte Abrechnungen und Sicherungen öffnen das iPad-Teilen-Menü (In „Dateien“ sichern, AirDrop, Mail). „Drucken“ nutzt AirPrint oder erstellt ein PDF. „Bildschirm anlassen“ verhindert die automatische Sperre.
+
+Das Projekt liegt im Ordner `ios/Thekenkasse.swiftpm/`. `ThekenkasseApp.swift` ist die App-Hülle, `WebApp.swift` enthält die Oberfläche und wird von `tools/build.py` erzeugt.
+
+### Einzeldatei `Thekenkasse.html`
 
 1. Die Datei aufs iPad übertragen (AirDrop, Mail, iCloud Drive oder USB) und in der **Dateien**-App ablegen.
 2. Mit einer App öffnen, die lokale HTML-Dateien mit JavaScript ausführen kann (im App Store unter „HTML Viewer“ zu finden). Safari selbst öffnet lokale HTML-Dateien auf dem iPad nicht zuverlässig.
@@ -53,7 +67,7 @@ Im Ordner `dist/` liegen zwei fertige Dateien:
 
 Ob die Daten dauerhaft gespeichert werden, hängt von der App ab, mit der du die Datei öffnest. Exportiere deshalb nach jedem Einsatz die Abrechnung (CSV) und gelegentlich eine Sicherung.
 
-### Weg 2: Web-App mit eigenem App-Icon (empfohlen für den Dauerbetrieb)
+### Web-App mit eigenem App-Icon
 
 1. `Thekenkasse-WebApp.zip` entpacken und den Ordner `Thekenkasse` auf einen beliebigen Webspace mit HTTPS hochladen (siehe „Bereitstellen“).
 2. Die Adresse auf dem iPad in **Safari** öffnen → **Teilen** → **Zum Home-Bildschirm**.
@@ -84,7 +98,8 @@ python3 -m http.server 8000
 | `sw.js` | Service Worker für den Offline-Betrieb |
 | `manifest.webmanifest`, `icons/` | App-Name und Icons für den Home-Bildschirm |
 | `fonts/` | Schrift „Barlow Semi Condensed“ (SIL Open Font License 1.1, siehe `fonts/OFL.txt`) |
-| `tools/build.py` | Erzeugt `dist/Thekenkasse.html` und `dist/Thekenkasse-WebApp.zip` (`python3 tools/build.py`) |
+| `ios/Thekenkasse.swiftpm/` | iPad-App für Swift Playgrounds (App-Hülle in Swift, Oberfläche eingebettet) |
+| `tools/build.py` | Erzeugt `ios/…/WebApp.swift` und alle Dateien in `dist/` (`python3 tools/build.py`) |
 
 ## Wie gebucht wird
 

@@ -154,6 +154,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   overscroll-behavior: none;
+  -webkit-touch-callout: none;
 }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; touch-action: manipulation; }
