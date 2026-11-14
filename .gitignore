@@ -1,2 +1,4 @@
 android/build/
 android/keystore/
+__pycache__/
+*.idsig

@@ -67,7 +67,7 @@ def main() -> None:
     final = ROOT / "dist" / "Thekenkasse.apk"
     final.parent.mkdir(exist_ok=True)
     run("apksigner", "sign", "--ks", str(KEYSTORE), "--ks-pass", f"pass:{KEY_PASS}", "--key-pass", f"pass:{KEY_PASS}",
-        "--out", str(final), str(aligned))
+        "--v4-signing-enabled", "false", "--out", str(final), str(aligned))
     run("apksigner", "verify", str(final))
     print(f"{final.relative_to(ROOT)}  ({final.stat().st_size / 1024:.0f} KB)")
 
