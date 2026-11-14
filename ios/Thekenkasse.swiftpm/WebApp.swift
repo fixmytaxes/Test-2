@@ -1075,8 +1075,10 @@ svg { flex: none; }
   let FRAMED = false;
   try { FRAMED = window.self !== window.top; } catch (e) { FRAMED = true; }
   const HAS_CLAUDE = !!(window.claude && typeof window.claude.use === 'function');
-  /** Native iPad-App (Swift Playgrounds): Speichern, Teilen und Drucken übernimmt die App. */
-  const NATIVE = (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.thekenkasse) || null;
+  /** Native App-Hülle (iPad: Swift Playgrounds, Android: APK): Speichern, Teilen und Drucken übernimmt die App. */
+  const ANDROID = window.ThekenkasseAndroid || null;
+  const NATIVE = (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.thekenkasse)
+    || (ANDROID ? { postMessage: (msg) => ANDROID.postMessage(JSON.stringify(msg)) } : null);
   const nativeSend = (msg) => { try { NATIVE.postMessage(msg); return true; } catch (e) { return false; } };
   const WAKE_SUPPORTED = !!NATIVE || 'wakeLock' in navigator;
 
@@ -1160,9 +1162,15 @@ svg { flex: none; }
   let storageOk = true;
   let restoredFromStorage = false;
   const IS_LOCAL_FILE = location.protocol === 'file:';
+  function nativeSaved() {
+    if (typeof window.__thekenkasseSaved === 'string') return window.__thekenkasseSaved;
+    try { return ANDROID && typeof ANDROID.loadState === 'function' ? ANDROID.loadState() : null; } catch (e) { return null; }
+  }
+
   function load() {
-    if (NATIVE && typeof window.__thekenkasseSaved === 'string' && window.__thekenkasseSaved) {
-      try { const s = migrate(JSON.parse(window.__thekenkasseSaved)); restoredFromStorage = true; return s; } catch (e) { /* weiter mit Browser-Speicher */ }
+    const saved = NATIVE ? nativeSaved() : null;
+    if (saved) {
+      try { const s = migrate(JSON.parse(saved)); restoredFromStorage = true; return s; } catch (e) { /* weiter mit Browser-Speicher */ }
     }
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -2696,7 +2704,11 @@ svg { flex: none; }
     const t = state.settings.theme;
     const root = document.documentElement;
     if (t === 'light' || t === 'dark') { root.setAttribute('data-theme', t); themeOverridden = true; }
-    else if (themeOverridden) {
+    else if (ANDROID && typeof ANDROID.isDarkMode === 'function') {
+      // Android-WebView meldet den Dunkelmodus nicht zuverlässig per CSS – die App fragt das System direkt.
+      root.setAttribute('data-theme', ANDROID.isDarkMode() ? 'dark' : 'light');
+      themeOverridden = true;
+    } else if (themeOverridden) {
       if (hostTheme) root.setAttribute('data-theme', hostTheme); else root.removeAttribute('data-theme');
       themeOverridden = false;
     }
@@ -2816,6 +2828,12 @@ svg { flex: none; }
     registerServiceWorker();
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
     Cloud.init();
+    // Zurück-Taste unter Android: erst Dialog schließen, dann zur Kasse, erst dann App verlassen.
+    window.__thekenkasseBack = () => {
+      if (modals.length) { closeModal(); return true; }
+      if (ui.view !== 'kasse') { go('kasse'); return true; }
+      return false;
+    };
     // Testhilfe für automatisierte Prüfungen
     window.__thekenkasse = { get state() { return state; }, computeReport, parseMoney, changeBreakdown, buildCsv };
   }

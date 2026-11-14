@@ -36,9 +36,22 @@ Eine schlanke Kassen-App für Getränkeverkauf und Thekendienst – gemacht für
 - Kachelgröße (klein/mittel/groß), Farbschema (automatisch/hell/dunkel), „Bildschirm anlassen“.
 - Sicherung als JSON exportieren/importieren, um alles auf ein anderes Gerät zu übertragen.
 
+## Android-App (APK)
+
+`dist/Thekenkasse.apk` ist eine fertige Android-App für Android 7 und neuer. Sie läuft komplett offline.
+
+1. `Thekenkasse.apk` auf dem Android-Gerät herunterladen und antippen.
+2. Android fragt, ob der Browser bzw. die Dateien-App „unbekannte Apps installieren“ darf: in den Einstellungen erlauben und zurückgehen.
+3. **Installieren** tippen. Warnt Google Play Protect vor einer unbekannten App, über „Weitere Details“ → „Trotzdem installieren“ fortfahren.
+4. Die App **Thekenkasse** erscheint bei den anderen Apps und startet im Vollbild.
+
+Die Daten liegen im App-Speicher des Geräts. „CSV exportieren“ und „Sicherung exportieren“ öffnen den Android-Dialog zum Speichern (z. B. in „Downloads“ oder Google Drive), „Drucken“ nutzt den Android-Druckdienst oder erstellt ein PDF, und die Zurück-Taste schließt zuerst offene Dialoge.
+
+Gebaut wird die App mit `python3 tools/build_android.py` (ohne Android Studio, siehe Kopf des Skripts). Updates lassen sich nur mit demselben Signaturschlüssel über die installierte App spielen. Fehlt der Schlüssel, vorher eine Sicherung exportieren, die App deinstallieren, die neue Version installieren und die Sicherung importieren.
+
 ## Aufs iPad bringen
 
-Im Ordner `dist/` liegen drei fertige Dateien:
+Im Ordner `dist/` liegen dafür drei fertige Dateien:
 
 | Datei | Wofür |
 | --- | --- |
@@ -99,6 +112,8 @@ python3 -m http.server 8000
 | `manifest.webmanifest`, `icons/` | App-Name und Icons für den Home-Bildschirm |
 | `fonts/` | Schrift „Barlow Semi Condensed“ (SIL Open Font License 1.1, siehe `fonts/OFL.txt`) |
 | `ios/Thekenkasse.swiftpm/` | iPad-App für Swift Playgrounds (App-Hülle in Swift, Oberfläche eingebettet) |
+| `android/` | Android-App: Manifest, Ressourcen, Icons und App-Hülle (`MainActivity.java`) |
+| `tools/build_android.py` | Baut `dist/Thekenkasse.apk` |
 | `tools/build.py` | Erzeugt `ios/…/WebApp.swift` und alle Dateien in `dist/` (`python3 tools/build.py`) |
 
 ## Wie gebucht wird
