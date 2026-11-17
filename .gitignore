@@ -2,3 +2,8 @@ android/build/
 android/keystore/
 __pycache__/
 *.idsig
+.pytest_cache/
+zeiterfassung/build/
+zeiterfassung/dist/
+zeiterfassung/paket/
+zeiterfassung/*.spec

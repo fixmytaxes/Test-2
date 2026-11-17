@@ -1,0 +1,66 @@
+name: Zeiterfassung – Windows-Programm bauen
+
+on:
+  push:
+    paths:
+      - "zeiterfassung/**"
+      - ".github/workflows/zeiterfassung-windows.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: zeiterfassung
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller pytest
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Selbsttest unter Windows (Python)
+        run: python -m zeiterfassung selbsttest --sekunden 2
+
+      - name: Zeiterfassung.exe bauen
+        run: >
+          pyinstaller --noconfirm --clean --onefile --windowed
+          --name Zeiterfassung
+          --icon zeiterfassung.ico
+          --add-data "zeiterfassung.ico;."
+          --hidden-import pystray._win32
+          --collect-all uiautomation
+          --collect-submodules comtypes
+          Zeiterfassung.pyw
+
+      - name: Selbsttest der fertigen .exe
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "dist\Zeiterfassung.exe" -ArgumentList "selbsttest","--ausgabe","selbsttest.txt","--sekunden","2" -Wait -PassThru
+          Get-Content selbsttest.txt
+          if ($p.ExitCode -ne 0) { throw "Selbsttest der .exe fehlgeschlagen (Exitcode $($p.ExitCode))" }
+
+      - name: Paket zusammenstellen
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force paket | Out-Null
+          Copy-Item dist\Zeiterfassung.exe paket\
+          Copy-Item README.md paket\LIESMICH.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Zeiterfassung-Windows
+          path: zeiterfassung/paket/
+          retention-days: 90

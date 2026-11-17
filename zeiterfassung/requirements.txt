@@ -1,0 +1,7 @@
+# Excel-Export
+openpyxl>=3.1
+# Uhr-Symbol im Infobereich der Taskleiste
+pystray>=0.19
+Pillow>=10.0
+# Browser-Adresse (Website) aus Chrome/Edge/Firefox lesen – nur Windows
+uiautomation>=2.0.18; sys_platform == "win32"

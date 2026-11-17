@@ -123,3 +123,11 @@ python3 -m http.server 8000
 - **Deckel kassiert**: Zahlung des Deckel-Gesamtbetrags; zählt zu den Bareinnahmen.
 
 Damit gilt: *Kassen-Soll = Anfangsbestand + Barverkäufe + kassierte Deckel.*
+
+---
+
+## Weiteres Projekt in diesem Repository: Zeiterfassung (Windows)
+
+Im Ordner [`zeiterfassung/`](zeiterfassung/README.md) liegt ein Windows-Programm, das automatisch protokolliert,
+welches Fenster (Programm, DATEV-Anwendung samt Mandant, Website) wann aktiv war, und daraus Tagesberichte als
+HTML und Excel erstellt – inklusive Zeiten, in denen der PC an war, aber nicht benutzt wurde.
