@@ -2,6 +2,8 @@
 
 Eine schlanke Kassen-App für Getränkeverkauf und Thekendienst – gemacht für das iPad, funktioniert aber genauso auf dem Handy oder am Laptop. Die App läuft komplett im Browser, braucht keinen Server und funktioniert nach dem ersten Aufruf auch offline.
 
+> **Weitere App in diesem Repository:** [Bonarchiv](bonarchiv/README.md) – Android-App zum Scannen, Archivieren und Durchsuchen digitaler Kassenbons (`bonarchiv/dist/Bonarchiv.apk`).
+
 ## Funktionen
 
 **Kasse (Startseite)**

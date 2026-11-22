@@ -2,3 +2,5 @@ android/build/
 android/keystore/
 __pycache__/
 *.idsig
+bonarchiv/android/build/
+bonarchiv/android/keystore/
