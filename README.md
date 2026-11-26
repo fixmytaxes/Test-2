@@ -1,3 +1,10 @@
+# Apps in diesem Repository
+
+| App | Ordner | Zweck |
+| --- | --- | --- |
+| **Thekenkasse** | Hauptverzeichnis (diese Datei) | Kasse für Getränkeverkauf und Thekendienst |
+| **Reisekosten** | [`reisekosten/`](reisekosten/README.md) | Reisekostenabrechnung für Unternehmer mit Verpflegungspauschalen, PDF mit E-Rechnung (ZUGFeRD/Factur-X) und Versand an DATEV Unternehmen online |
+
 # Thekenkasse
 
 Eine schlanke Kassen-App für Getränkeverkauf und Thekendienst – gemacht für das iPad, funktioniert aber genauso auf dem Handy oder am Laptop. Die App läuft komplett im Browser, braucht keinen Server und funktioniert nach dem ersten Aufruf auch offline.
