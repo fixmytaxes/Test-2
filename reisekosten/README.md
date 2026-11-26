@@ -4,6 +4,24 @@ Web-App (PWA) zur Dokumentation und Abrechnung von Reisekosten deutscher Unterne
 
 Die App läuft im Browser auf Smartphone, Tablet und PC und lässt sich auf dem Home-Bildschirm installieren. Alle Daten liegen lokal auf dem Gerät (IndexedDB). Ein kleiner Node-Server liefert die App aus und versendet die E-Mails per SMTP.
 
+## Android-App (APK)
+
+`dist/Reisekosten.apk` im Hauptverzeichnis des Repositorys ist eine fertige Android-App für Android 7.0 und neuer. Sie enthält die komplette App und arbeitet offline.
+
+1. `Reisekosten.apk` auf dem Android-Gerät herunterladen und antippen.
+2. Android fragt, ob der Browser bzw. die Dateien-App „unbekannte Apps installieren“ darf: in den Einstellungen erlauben und zurückgehen.
+3. **Installieren** tippen. Warnt Google Play Protect vor einer unbekannten App, über „Weitere Details“ → „Trotzdem installieren“ fortfahren.
+4. **Reisekosten** erscheint bei den anderen Apps.
+
+So arbeitet die Android-App:
+- **Belege**: „Foto“ öffnet die Kamera, „Datei“ den Dateiauswahl-Dialog mit Kamera-Option. Fotos werden verkleinert und in der App gespeichert.
+- **An DATEV senden**: „Mit E-Mail-App senden“ öffnet Gmail, Outlook oder eine andere Mail-App. Empfänger (DATEV-Upload-Adresse), Betreff, Text und die PDF sind bereits eingetragen; ein Server ist nicht nötig. Nach dem Versand „Versendet – als eingereicht markieren“ tippen. Ist ein Versand-Server eingerichtet, sendet die App auch direkt.
+- **PDF öffnen** zeigt die Abrechnung im PDF-Viewer des Geräts. Herunterladen, XML und Datensicherung öffnen den Android-Dialog „Speichern unter“, z. B. für „Downloads“ oder Google Drive.
+- Die **Zurück-Taste** schließt zuerst offene Dialoge.
+- Die Daten liegen im App-Speicher des Geräts. Beim Deinstallieren werden sie gelöscht, daher vorher *Einstellungen → Datensicherung* nutzen.
+
+Gebaut wird die App mit `python3 tools/build_android.py`, ohne Android Studio; die Voraussetzungen stehen im Kopf des Skripts. Die Android-Hülle liegt in `android/` (WebView, Kamera, Speichern/Teilen über einen eigenen Content-Provider). Updates lassen sich nur mit demselben Signaturschlüssel über die installierte App spielen. Fehlt der Schlüssel, vorher eine Sicherung exportieren, die App deinstallieren, die neue Version installieren und die Sicherung einlesen.
+
 ## Funktionen
 
 **Übersicht (Dashboard)**

@@ -3,3 +3,5 @@ dist/
 dist-single/
 .env
 tests/out/
+android/build/
+android/keystore/

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Anhang, Betragszeile, Bezahlt, Ort, UstKey } from '../types';
 import { useStore } from '../store';
 import { fmtGroesse, istBild, istPdf } from '../lib/images';
+import { android, blobZuBase64 } from '../lib/plattform';
 import { fmtEUR, sumBrutto, UST_LABEL } from '../lib/money';
 import { CountrySelect, Field, Icon, MoneyInput, Segmented, Select, TextInput } from './ui';
 
@@ -86,7 +87,19 @@ function AnhangKachel({ a, ladeDatei, onRemove }: { a: Anhang; ladeDatei: (id: s
   }, [a.id, ladeDatei]);
   return (
     <li className="anhang">
-      <a className="anhang-link" href={url} target="_blank" rel="noreferrer" title={`${a.name} öffnen`}>
+      <a
+        className="anhang-link"
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        title={`${a.name} öffnen`}
+        onClick={(ev) => {
+          const app = android();
+          if (!app) return;
+          ev.preventDefault();
+          void ladeDatei(a.id).then(async (b) => b && app.openFile(a.name, a.typ || b.type, await blobZuBase64(b)));
+        }}
+      >
         {istBild(a.typ) && url ? <img src={url} alt="" /> : <span className="anhang-typ">{istPdf(a.typ) ? 'PDF' : <Icon name="file" />}</span>}
         <span className="anhang-name">
           {a.name}

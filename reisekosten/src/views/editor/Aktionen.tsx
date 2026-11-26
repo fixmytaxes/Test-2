@@ -4,6 +4,7 @@ import { useStore } from '../../store';
 import { nowIso } from '../../lib/dates';
 import { betreff, erzeugeExport, herunterladen, kannTeilen, mailText, oeffnen, sendeMail, serverStatus, teilen, type Exportdatei } from '../../lib/export';
 import { fmtGroesse } from '../../lib/images';
+import { istAndroid } from '../../lib/plattform';
 import { fmtEUR } from '../../lib/money';
 import { berechne } from '../../lib/totals';
 import { Checkbox, Field, Hinweis, Icon, Modal, TextArea, TextInput } from '../../components/ui';
@@ -77,7 +78,7 @@ export function SendenDialog({ r, storno, onClose }: { r: Reise; storno?: boolea
   const perTeilen = () =>
     run('teilen', async () => {
       const liste = await baue();
-      const ok = await teilen(liste, betreff(e, r, storno), mailText(e, r, betragText, storno));
+      const ok = await teilen(liste, betreff(e, r, storno), mailText(e, r, betragText, storno), an.trim());
       if (!ok) throw new Error('Teilen wird auf diesem Gerät nicht unterstützt.');
       await vermerk('teilen', liste, false);
       setGeteilt(true);
@@ -106,16 +107,22 @@ export function SendenDialog({ r, storno, onClose }: { r: Reise; storno?: boolea
       <Checkbox checked={xmlSeparat} onChange={setXmlSeparat} label="XML zusätzlich als eigene Datei anhängen" hinweis="Achtung: DATEV legt dann zwei Belege an (PDF und XML)." />
       {server && (
         <Hinweis art={mailBereit ? 'ok' : 'info'} icon="server">
-          {mailBereit ? server.text : `${server.text}. Sie können die Dateien teilen oder herunterladen und selbst per E-Mail senden.`}
+          {mailBereit
+            ? server.text
+            : istAndroid()
+              ? 'Ohne Versand-Server öffnet die App Ihr E-Mail-Programm – Empfänger, Betreff und Anhänge sind schon eingetragen.'
+              : `${server.text}. Sie können die Dateien teilen oder herunterladen und selbst per E-Mail senden.`}
         </Hinweis>
       )}
       <div className="dialog-btns">
-        <button type="button" className="btn btn-primaer" disabled={!mailBereit || !!laeuft} onClick={perMail}>
-          <Icon name="send" /> {laeuft === 'mail' ? 'Wird gesendet …' : 'Per E-Mail senden'}
-        </button>
+        {(mailBereit || !istAndroid()) && (
+          <button type="button" className="btn btn-primaer" disabled={!mailBereit || !!laeuft} onClick={perMail}>
+            <Icon name="send" /> {laeuft === 'mail' ? 'Wird gesendet …' : 'Per E-Mail senden'}
+          </button>
+        )}
         {kannTeilen() && (
-          <button type="button" className="btn" disabled={!!laeuft} onClick={perTeilen}>
-            <Icon name="share" /> {laeuft === 'teilen' ? 'Wird erstellt …' : 'Teilen (Mail-App)'}
+          <button type="button" className={!mailBereit && istAndroid() ? 'btn btn-primaer' : 'btn'} disabled={!!laeuft} onClick={perTeilen}>
+            <Icon name={istAndroid() ? 'send' : 'share'} /> {laeuft === 'teilen' ? 'Wird erstellt …' : istAndroid() ? 'Mit E-Mail-App senden' : 'Teilen (Mail-App)'}
           </button>
         )}
         <button type="button" className="btn" disabled={!!laeuft} onClick={perDownload}>

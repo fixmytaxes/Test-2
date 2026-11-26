@@ -3,7 +3,7 @@
 | App | Ordner | Zweck |
 | --- | --- | --- |
 | **Thekenkasse** | Hauptverzeichnis (diese Datei) | Kasse für Getränkeverkauf und Thekendienst |
-| **Reisekosten** | [`reisekosten/`](reisekosten/README.md) | Reisekostenabrechnung für Unternehmer mit Verpflegungspauschalen, PDF mit E-Rechnung (ZUGFeRD/Factur-X) und Versand an DATEV Unternehmen online |
+| **Reisekosten** | [`reisekosten/`](reisekosten/README.md) | Reisekostenabrechnung für Unternehmer mit Verpflegungspauschalen, PDF mit E-Rechnung (ZUGFeRD/Factur-X) und Versand an DATEV Unternehmen online – Android-App: `dist/Reisekosten.apk` |
 
 # Thekenkasse
 

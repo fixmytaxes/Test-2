@@ -4,6 +4,7 @@ import { today } from './dates';
 import { dateiBasis, erzeugePdf } from './pdf';
 import { berechne } from './totals';
 import { erzeugeXml } from './xml';
+import { android, blobZuBase64 } from './plattform';
 
 export interface Exportdatei {
   name: string;
@@ -52,6 +53,11 @@ export async function erzeugeExport(
 }
 
 export function herunterladen(d: Exportdatei) {
+  const app = android();
+  if (app) {
+    void blobZuBase64(d.blob).then((b64) => app.saveFile(d.name, d.typ, b64));
+    return;
+  }
   const url = URL.createObjectURL(d.blob);
   const a = document.createElement('a');
   a.href = url;
@@ -63,20 +69,18 @@ export function herunterladen(d: Exportdatei) {
 }
 
 export function oeffnen(d: Exportdatei | Blob) {
+  const app = android();
+  if (app) {
+    const blob = d instanceof Blob ? d : d.blob;
+    const name = d instanceof Blob ? 'Dokument.pdf' : d.name;
+    void blobZuBase64(blob).then((b64) => app.openFile(name, blob.type || 'application/pdf', b64));
+    return;
+  }
   const blob = d instanceof Blob ? d : d.blob;
   const url = URL.createObjectURL(blob);
   const w = window.open(url, '_blank');
   if (!w && !(d instanceof Blob)) herunterladen(d);
   setTimeout(() => URL.revokeObjectURL(url), 120_000);
-}
-
-function blobZuBase64(b: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => resolve(String(fr.result).split(',')[1] ?? '');
-    fr.onerror = () => reject(fr.error);
-    fr.readAsDataURL(b);
-  });
 }
 
 export function betreff(e: Einstellungen, r: Reise, storno = false): string {
@@ -90,6 +94,7 @@ export function serverUrl(e: Einstellungen): string {
 }
 
 export async function serverStatus(e: Einstellungen): Promise<{ ok: boolean; mail: boolean; text: string }> {
+  if (android() && !serverUrl(e)) return { ok: false, mail: false, text: 'Kein Versand-Server eingerichtet' };
   try {
     const res = await fetch(`${serverUrl(e)}/api/health`, { headers: e.server.token ? { 'X-App-Token': e.server.token } : {} });
     if (!res.ok) return { ok: false, mail: false, text: `Server antwortet mit ${res.status}` };
@@ -120,8 +125,13 @@ export async function sendeMail(e: Einstellungen, an: string, betreffText: strin
   }
 }
 
-/** Teilen über das Betriebssystem (z. B. Mail-App auf dem Smartphone) */
-export async function teilen(dateien: Exportdatei[], titel: string, text: string): Promise<boolean> {
+/** Teilen über das Betriebssystem (z. B. Mail-App auf dem Smartphone). Unter Android mit vorbelegtem Empfänger. */
+export async function teilen(dateien: Exportdatei[], titel: string, text: string, an?: string): Promise<boolean> {
+  const app = android();
+  if (app) {
+    const files = await Promise.all(dateien.map(async (d) => ({ name: d.name, mime: d.typ, base64: await blobZuBase64(d.blob) })));
+    return app.shareFiles(JSON.stringify({ files, subject: titel, text, email: an || '' }));
+  }
   const files = dateien.map((d) => new File([d.blob], d.name, { type: d.typ }));
   const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
   if (!nav.share || !nav.canShare?.({ files })) return false;
@@ -135,6 +145,7 @@ export async function teilen(dateien: Exportdatei[], titel: string, text: string
 }
 
 export function kannTeilen(): boolean {
+  if (android()) return true;
   const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
   try {
     return !!nav.share && !!nav.canShare?.({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] });
