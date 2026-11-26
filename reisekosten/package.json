@@ -1,0 +1,34 @@
+{
+  "name": "reisekosten",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Reisekostenabrechnung für deutsche Unternehmer: Reisen erfassen, Verpflegungsmehraufwand berechnen, PDF mit E-Rechnungs-XML erzeugen und an DATEV Unternehmen online senden.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:single": "vite build --mode single",
+    "preview": "vite preview",
+    "start": "node server/server.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "4.21.2",
+    "nodemailer": "6.9.16"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.4",
+    "fake-indexeddb": "6.0.0",
+    "pdf-lib": "1.17.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vite-plugin-singlefile": "2.0.3",
+    "vitest": "2.1.8"
+  }
+}
